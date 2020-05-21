@@ -31,7 +31,7 @@ public class Spell
     /// <summary>
     /// Storage space for variables that are manipulated during spell execution
     /// </summary>
-    public Dictionary<string, Variable> memory = new Dictionary<string, Variable>();
+    public SpellStack memory = new SpellStack();
 
     /// <summary>
     /// The next line to be executed by this spell
@@ -63,10 +63,7 @@ public class Spell
     /// </summary>
     public void BeginCast(List<Variable> componentValues)
     {
-        foreach (Variable v in componentValues)
-        {
-            memory[v.varName] = v;
-        }
+        memory.Initialize(componentValues);
         currentLine = 0;
     }
 
@@ -120,17 +117,7 @@ public class Spell
                 currentLine = loopStart;
         }
 
-        float storedMagic = 0;
-        foreach (KeyValuePair<string, Variable> entry in memory)
-        {
-            if (entry.Value is Mana)
-            {
-                Mana m = (Mana)entry.Value;
-                UnityEngine.Debug.Log(m.varName);
-                UnityEngine.Debug.Log(m.gandalfs);
-                storedMagic += m.gandalfs;
-            }
-        }
+        float storedMagic = memory.GandalfTotal();
 
         if (currentLine == lines.Count || aberration != "")
             Reset();
@@ -178,8 +165,7 @@ public class Spell
     /// </summary>
     private void Initialize()
     {
-        foreach (Variable entry in initial)
-            memory[entry.varName] = entry.Clone();
+        memory.Initialize(initial);
     }
 
     /// <summary>
@@ -187,9 +173,7 @@ public class Spell
     /// </summary>
     private void AddToMemory(Variable v)
     {
-        if (memory.ContainsKey(v.varName))
-            memory.Remove(v.varName);
-        memory.Add(v.varName, v);
+        memory.Set(v.varName, v);
     }
 
     /// <summary>

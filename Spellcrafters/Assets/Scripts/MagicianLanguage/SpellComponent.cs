@@ -36,5 +36,6 @@ public enum Types
     Mana,
     Group,
     Loop,
-    Conditional
+    Conditional,
+    Null
 }

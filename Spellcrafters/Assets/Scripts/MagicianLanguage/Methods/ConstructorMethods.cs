@@ -9,29 +9,32 @@ using UnityEngine;
 /// </summary>
 public class NewNumber : Method
 {
-    /// <summary>
-    /// The number that will be placed in the Number variable
-    /// </summary>
-    private string numberName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    public NewNumber(string outputName, string _number) : base("New Number", outputName)
+    public NewNumber()
     {
-        numberName = _number;
+        Name = "New Number";
+        Output = new SpellComponent("", Types.Number);
+        MethodComponents = new SpellComponent[] { new SpellComponent("n", Types.Number)};
+        VarNames = new Dictionary<string, string>();
     }
 
     /// <summary>
     /// Creates and returns a new Number Variable
     /// </summary>
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Number number = (Number)variables[numberName];
-        return new Number(outputName, number.value);
+        Number number = (Number)variables.Get(VarNames["n"]);
+        return new Number(Output.name, number.value);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Number number = (Number)variables[numberName];
-        return $"{outputName} = {number.GetVoice()}";
+        Number number = (Number)variables.Get(VarNames["n"]);
+        return $"{Output.name} = {number.GetVoice()}";
     }
 }
 
