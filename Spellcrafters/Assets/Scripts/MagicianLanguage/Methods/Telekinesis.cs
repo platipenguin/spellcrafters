@@ -8,34 +8,37 @@ using UnityEngine;
 /// </summary>
 public class Move : Method
 {
-    private string targetName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    private string directionName;
-
-    private string fuelName;
-
-    public Move(string _target, string _direction, string _fuel) : base("Move", "")
+    public Move()
     {
-        targetName = _target;
-        directionName = _direction;
-        fuelName = _fuel;
+        Name = "Move";
+        Output = new SpellComponent("", Types.Null);
+        MethodComponents = new SpellComponent[] { 
+            new SpellComponent("object", Types.Object),
+            new SpellComponent("direction", Types.Direction),
+            new SpellComponent("fuel", Types.Mana) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Obj target = (Obj)variables[targetName];
-        Direction dir = (Direction)variables[directionName];
-        Mana fuel = (Mana)variables[fuelName];
+        Obj target = (Obj)variables.Get(VarNames["object"]);
+        Direction dir = (Direction)variables.Get(VarNames["direction"]);
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
         float theta = dir.value * Mathf.Deg2Rad;
         Vector2 forceVector = new Vector2(Mathf.Cos(theta) * fuel.gandalfs, Mathf.Sin(theta) * fuel.gandalfs);
         target.obj.GetComponent<Rigidbody2D>().AddForce(forceVector, ForceMode2D.Impulse);
         return null;
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Direction dir = (Direction)variables[directionName];
-        Mana fuel = (Mana)variables[fuelName];
-        return $"Telekinesis.Move({targetName}, {dir.GetVoice()}, {fuel.GetVoice()})";
+        Direction dir = (Direction)variables.Get(VarNames["direction"]);
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
+        return $"Telekinesis.Move({VarNames["object"]}, {dir.GetVoice()}, {fuel.GetVoice()})";
     }
 }

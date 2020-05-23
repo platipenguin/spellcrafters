@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 /// <summary>
 /// Determines if two variables are the same or different
@@ -9,72 +6,67 @@ using UnityEngine;
 /// </summary>
 public class CheckEquality : Method
 {
-    /// <summary>
-    /// Name of the first variable to check
-    /// </summary>
-    private string var1Name;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    /// <summary>
-    /// Name of the second variable to check
-    /// </summary>
-    private string var2Name;
-
-    /// <summary>
-    /// Name of the boolean value this method is looking for
-    /// </summary>
-    private string boolName;
-
-    public CheckEquality(string outputName, string _var1, string _var2, string _bool) : base("Check Equality", outputName)
+    public CheckEquality()
     {
-        var1Name = _var1;
-        var2Name = _var2;
-        boolName = _bool;
+        Name = "CheckEquality";
+        Output = new SpellComponent("", Types.YeaNay);
+        MethodComponents = new SpellComponent[] { 
+            new SpellComponent("var1", Types.Object),
+            new SpellComponent("var2", Types.Mana),
+            new SpellComponent("equal", Types.YeaNay)
+        };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
         bool res = false;
-        YeaNay yn = (YeaNay)variables[boolName];
-        if (variables[var2Name].magicianType != variables[var2Name].magicianType)
-            return new YeaNay(outputName, false == yn.value);
-        switch(variables[var1Name].magicianType)
+        YeaNay yn = (YeaNay)variables.Get(VarNames["equal"]);
+        if (variables.Get(VarNames["var1"]).magicianType != variables.Get(VarNames["var2"]).magicianType)
+            return new YeaNay(Output.name, false == yn.value);
+        switch(variables.Get(VarNames["var1"]).magicianType)
         {
             case Types.Number:
-                Number var1Number = (Number)variables[var1Name];
-                Number var2Number = (Number)variables[var2Name];
+                Number var1Number = (Number)variables.Get(VarNames["var1"]);
+                Number var2Number = (Number)variables.Get(VarNames["var2"]);
                 res = (var1Number.value == var2Number.value);
                 break;
             case Types.Direction:
-                Direction var1Dir = (Direction)variables[var1Name];
-                Direction var2Dir = (Direction)variables[var2Name];
+                Direction var1Dir = (Direction)variables.Get(VarNames["var1"]);
+                Direction var2Dir = (Direction)variables.Get(VarNames["var2"]);
                 res = (var1Dir.value == var2Dir.value);
                 break;
             case Types.YeaNay:
-                YeaNay var1Y = (YeaNay)variables[var1Name];
-                YeaNay var2Y = (YeaNay)variables[var2Name];
+                YeaNay var1Y = (YeaNay)variables.Get(VarNames["var1"]);
+                YeaNay var2Y = (YeaNay)variables.Get(VarNames["var2"]);
                 res = (var1Y.value == var2Y.value);
                 break;
             case Types.Point:
-                Point var1P = (Point)variables[var1Name];
-                Point var2p = (Point)variables[var2Name];
+                Point var1P = (Point)variables.Get(VarNames["var1"]);
+                Point var2p = (Point)variables.Get(VarNames["var2"]);
                 res = (var1P.x == var2p.x && var1P.y == var2p.y);
                 break;
             case Types.Area:
-                Area var1A = (Area)variables[var1Name];
-                Area var2A = (Area)variables[var2Name];
+                Area var1A = (Area)variables.Get(VarNames["var1"]);
+                Area var2A = (Area)variables.Get(VarNames["var2"]);
                 res = (var1A.originX == var2A.originX && var1A.originY == var2A.originY && var1A.endX == var2A.endX && var1A.endY == var2A.endY);
                 break;
             default:
-                res = variables[var1Name].varName == variables[var2Name].varName;
+                res = variables.Get(VarNames["var1"]).varName == variables.Get(VarNames["var2"]).varName;
                 break;
         }
-        return new YeaNay(outputName, res == yn.value);
+        return new YeaNay(Output.name, res == yn.value);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        YeaNay yn = (YeaNay)variables[boolName];
+        YeaNay yn = (YeaNay)variables.Get(VarNames["equal"]);
         string operatorString = (yn.value == true) ? " is the same " : " is not the same ";
-        return $"{variables[var1Name].GetVoice()}{operatorString}{variables[var2Name].GetVoice()}";
+        return $"{variables.Get(VarNames["var1"]).GetVoice()}{operatorString}{variables.Get(VarNames["var2"]).GetVoice()}";
     }
 }

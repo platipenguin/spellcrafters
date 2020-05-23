@@ -5,6 +5,11 @@
 /// </summary>
 public class Conditional : Method
 {
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
+
     /// <summary>
     /// Line to go to if conditional is true
     /// </summary>
@@ -15,28 +20,26 @@ public class Conditional : Method
     /// </summary>
     private int nayLine;
 
-    /// <summary>
-    /// Name of the YeaNay variable that determines this conditional
-    /// </summary>
-    private string ynName;
-
-    public Conditional(int _yeaLine, int _nayLine, string _ynName) : base("Conditional", "")
+    public Conditional(int _yeaLine, int _nayLine)
     {
+        Name = "If";
+        Output = new SpellComponent("", Types.Conditional);
+        MethodComponents = new SpellComponent[] { new SpellComponent("yn", Types.YeaNay) };
+        InitVarNames();
         yeaLine = _yeaLine;
         nayLine = _nayLine;
-        ynName = _ynName;
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        YeaNay yn = (YeaNay)variables[ynName];
+        YeaNay yn = (YeaNay)variables.Get(VarNames["yn"]);
         int nextLine = (yn.value) ? yeaLine : nayLine;
         return new ConditionalControl(nextLine);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        YeaNay yn = (YeaNay)variables[ynName];
+        YeaNay yn = (YeaNay)variables.Get(VarNames["yn"]);
         string toReturn = (yn.value) ? "Condition is Yea" : "Condition is Nay";
         return toReturn;
     }

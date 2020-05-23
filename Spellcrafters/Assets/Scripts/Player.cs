@@ -21,8 +21,9 @@ public class Player : Spellcaster
 
     void Awake()
     {
+        //TODO: Get spells working again
         InitSpellcaster(1);
-
+        /*
         List<Variable> lesserHarmInit = new List<Variable>();
         lesserHarmInit.Add(new Obj("_player", this));
         lesserHarmInit.Add(new Number("_num1", 50));
@@ -137,7 +138,7 @@ public class Player : Spellcaster
         testLines.Add(new ChannelMana("n", "=player", "num2"));
         Spell test = new Spell("test", testLines, testComponents, testInit);
         spellBook.Add(test);
-
+        */
         List<SpellbookUIEntry> spellbookEntries = spellBookController.InitializeSpellbook(spellBook);
         foreach (SpellbookUIEntry entry in spellbookEntries)
             entry.EntryClicked += SetSpell;

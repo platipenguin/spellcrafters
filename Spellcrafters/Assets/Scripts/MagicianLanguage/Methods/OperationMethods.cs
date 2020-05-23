@@ -7,33 +7,30 @@ using UnityEngine;
 /// </summary>
 public abstract class OperationMethod : Method
 {
-    /// <summary>
-    /// First number to operate on
-    /// </summary>
-    public string numberA;
-
-    /// <summary>
-    /// Second number to operate on
-    /// </summary>
-    public string numberB;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
     /// <summary>
     /// String of the operator for the method
     /// </summary>
-    public string operatorString;
+    protected string operatorString;
 
-    public OperationMethod(string methodName, string outputName, string _xName, string _yName, string _operatorString) : base(methodName, outputName)
+    public OperationMethod(string methodName, string _operatorString)
     {
-        numberA = _xName;
-        numberB = _yName;
+        Name = methodName;
+        Output = new SpellComponent("", Types.Number);
+        MethodComponents = new SpellComponent[] { new SpellComponent("numberA", Types.Number), new SpellComponent("numberB", Types.Number) };
+        InitVarNames();
         operatorString = _operatorString;
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Number varA = (Number)variables[numberA];
-        Number varB = (Number)variables[numberB];
-        return $"{outputName} = {varA.GetVoice()}{operatorString}{varB.GetVoice()}";
+        Number varA = (Number)variables.Get(VarNames["numberA"]);
+        Number varB = (Number)variables.Get(VarNames["numberB"]);
+        return $"{Output.name} = {varA.GetVoice()}{operatorString}{varB.GetVoice()}";
     }
 }
 
@@ -45,13 +42,13 @@ public class AddNumbers : OperationMethod
     /// <summary>
     /// Returns X + Y
     /// </summary>
-    public AddNumbers(string outputName, string xName, string yName) : base("Add", outputName, xName, yName, "+") { }
+    public AddNumbers() : base("Add", "+") { }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Number varA = (Number)variables[this.numberA];
-        Number varB = (Number)variables[this.numberB];
-        return new Number(this.outputName, varA.value + varB.value);
+        Number varA = (Number)variables.Get(VarNames["numberA"]);
+        Number varB = (Number)variables.Get(VarNames["numberB"]);
+        return new Number(Output.name, varA.value + varB.value);
     }
 }
 
@@ -63,13 +60,13 @@ public class SubtractNumbers : OperationMethod
     /// <summary>
     /// Returns X - Y
     /// </summary>
-    public SubtractNumbers(string outputName, string xName, string yName) : base("Subtract", outputName, xName, yName, "-") { }
+    public SubtractNumbers(string outputName, string xName, string yName) : base("Subtract", "-") { }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Number varA = (Number)variables[this.numberA];
-        Number varB = (Number)variables[this.numberB];
-        return new Number(this.outputName, varA.value - varB.value);
+        Number varA = (Number)variables.Get(VarNames["numberA"]);
+        Number varB = (Number)variables.Get(VarNames["numberB"]);
+        return new Number(Output.name, varA.value - varB.value);
     }
 }
 
@@ -81,13 +78,13 @@ public class MultiplyNumbers : OperationMethod
     /// <summary>
     /// Returns X * Y
     /// </summary>
-    public MultiplyNumbers(string outputName, string xName, string yName) : base("Multiply", outputName, xName, yName, "*") { }
+    public MultiplyNumbers(string outputName, string xName, string yName) : base("Multiply", "*") { }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Number varA = (Number)variables[this.numberA];
-        Number varB = (Number)variables[this.numberB];
-        return new Number(this.outputName, varA.value * varB.value);
+        Number varA = (Number)variables.Get(VarNames["numberA"]);
+        Number varB = (Number)variables.Get(VarNames["numberB"]);
+        return new Number(Output.name, varA.value * varB.value);
     }
 }
 
@@ -99,12 +96,12 @@ public class DivideNumbers : OperationMethod
     /// <summary>
     /// Returns X / Y
     /// </summary>
-    public DivideNumbers(string outputName, string xName, string yName) : base("Divide", outputName, xName, yName, "/") { }
+    public DivideNumbers(string outputName, string xName, string yName) : base("Divide", "/") { }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Number varA = (Number)variables[this.numberA];
-        Number varB = (Number)variables[this.numberB];
-        return new Number(this.outputName, varA.value / varB.value);
+        Number varA = (Number)variables.Get(VarNames["numberA"]);
+        Number varB = (Number)variables.Get(VarNames["numberB"]);
+        return new Number(Output.name, varA.value / varB.value);
     }
 }

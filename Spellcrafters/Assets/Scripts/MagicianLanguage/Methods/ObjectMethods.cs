@@ -7,26 +7,23 @@ using UnityEngine;
 /// </summary>
 public class IncreaseHealth : Method
 {
-    /// <summary>
-    /// The name of the object being targeted
-    /// </summary>
-    public string targetName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    /// <summary>
-    /// Name of the Mana variable fueling this method
-    /// </summary>
-    public string fuelName;
-
-    public IncreaseHealth(string _targetName, string _fuelName) : base("Increase Health", "")
+    public IncreaseHealth()
     {
-        targetName = _targetName;
-        fuelName = _fuelName;
+        Name = "IncreaseHealth";
+        Output = new SpellComponent("", Types.Null);
+        MethodComponents = new SpellComponent[] { new SpellComponent("object", Types.Object), new SpellComponent("fuel", Types.Mana) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Obj target = (Obj)variables[targetName];
-        Mana fuel = (Mana)variables[fuelName];
+        Obj target = (Obj)variables.Get(VarNames["object"]);
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
         target.health += (fuel.gandalfs / WorldObject.HEALTH_CONVERSION_CONSTANT);
         if (target.health > target.maxHealth)
             target.health = target.maxHealth;
@@ -34,10 +31,10 @@ public class IncreaseHealth : Method
         return null;
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Mana fuel = (Mana)variables[fuelName];
-        return $"{targetName}.IncreaseHealth({fuel.GetVoice()})";
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
+        return $"{VarNames["object"]}.IncreaseHealth({fuel.GetVoice()})";
     }
 }
 
@@ -46,26 +43,23 @@ public class IncreaseHealth : Method
 /// </summary>
 public class IncreaseMagic : Method
 {
-    /// <summary>
-    /// The name of the object being targeted
-    /// </summary>
-    public string targetName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    /// <summary>
-    /// Name of the Mana variable fueling this method
-    /// </summary>
-    public string fuelName;
-
-    public IncreaseMagic(string _targetName, string _fuelName) : base("Increase Magic", "")
+    public IncreaseMagic()
     {
-        targetName = _targetName;
-        fuelName = _fuelName;
+        Name = "IncreaseMagic";
+        Output = new SpellComponent("", Types.Null);
+        MethodComponents = new SpellComponent[] { new SpellComponent("object", Types.Object), new SpellComponent("fuel", Types.Mana) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Obj target = (Obj)variables[targetName];
-        Mana fuel = (Mana)variables[fuelName];
+        Obj target = (Obj)variables.Get(VarNames["object"]);
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
         target.magic += fuel.gandalfs;
         if (target.magic > target.maxMagic)
             target.magic = target.maxMagic;
@@ -73,10 +67,10 @@ public class IncreaseMagic : Method
         return null;
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Mana fuel = (Mana)variables[fuelName];
-        return $"{targetName}.IncreaseMagic({fuel.GetVoice()})";
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
+        return $"{VarNames["object"]}.IncreaseMagic({fuel.GetVoice()})";
     }
 }
 
@@ -85,39 +79,36 @@ public class IncreaseMagic : Method
 /// </summary>
 public class ReduceHealth : Method
 {
-    /// <summary>
-    /// The name of the object being targeted
-    /// </summary>
-    public string targetName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    /// <summary>
-    /// Name of the Mana variable fueling this method
-    /// </summary>
-    public string fuelName;
-
-    public ReduceHealth(string outputName, string _targetName, string _fuelName) : base("Reduce Health", outputName)
+    public ReduceHealth()
     {
-        targetName = _targetName;
-        fuelName = _fuelName;
+        Name = "ReduceHealth";
+        Output = new SpellComponent("", Types.Mana);
+        MethodComponents = new SpellComponent[] { new SpellComponent("object", Types.Object), new SpellComponent("fuel", Types.Mana) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Obj target = (Obj)variables[targetName];
-        Mana fuel = (Mana)variables[fuelName];
+        Obj target = (Obj)variables.Get(VarNames["object"]);
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
         float amountRemoved = (fuel.gandalfs / WorldObject.HEALTH_CONVERSION_CONSTANT) / target.magicDefense;
         fuel.gandalfs = 0;
         float difference = amountRemoved > target.health ? target.health : amountRemoved;
         target.health -= difference;
-        Mana generatedMana = new Mana(outputName);
+        Mana generatedMana = new Mana(Output.name);
         generatedMana.gandalfs = difference * WorldObject.HEALTH_CONVERSION_CONSTANT;
         return generatedMana;
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Mana fuel = (Mana)variables[fuelName];
-        return $"{targetName}.ReduceHealth({fuel.GetVoice()})";
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
+        return $"{VarNames["object"]}.ReduceHealth({fuel.GetVoice()})";
     }
 }
 
@@ -126,27 +117,24 @@ public class ReduceHealth : Method
 /// </summary>
 public class ReduceMagic : Method
 {
-    /// <summary>
-    /// The name of the object being targeted
-    /// </summary>
-    public string targetName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    /// <summary>
-    /// Name of the Mana variable fueling this method
-    /// </summary>
-    public string fuelName;
-
-    public ReduceMagic(string outputName, string _targetName, string _fuelName) : base("Reduce Magic", outputName)
+    public ReduceMagic()
     {
-        targetName = _targetName;
-        fuelName = _fuelName;
+        Name = "ReduceMagic";
+        Output = new SpellComponent("", Types.Mana);
+        MethodComponents = new SpellComponent[] { new SpellComponent("object", Types.Object), new SpellComponent("fuel", Types.Mana) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Obj target = (Obj)variables[targetName];
-        Mana fuel = (Mana)variables[fuelName];
-        Mana generatedMana = new Mana(outputName);
+        Obj target = (Obj)variables.Get(VarNames["object"]);
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
+        Mana generatedMana = new Mana(Output.name);
         float amountRemoved = fuel.gandalfs / target.magicDefense;
         fuel.gandalfs = 0;
         float difference = amountRemoved > target.magic ? target.magic : amountRemoved;
@@ -155,10 +143,10 @@ public class ReduceMagic : Method
         return generatedMana;
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Mana fuel = (Mana)variables[fuelName];
-        return $"{outputName} = {targetName}.ReduceMagic({fuel.GetVoice()})";
+        Mana fuel = (Mana)variables.Get(VarNames["fuel"]);
+        return $"{Output.name} = {VarNames["object"]}.ReduceMagic({fuel.GetVoice()})";
     }
 }
 
@@ -167,25 +155,28 @@ public class ReduceMagic : Method
 /// </summary>
 public class IsAlive : Method
 {
-    /// <summary>
-    /// The name of the object
-    /// </summary>
-    public string targetName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    public IsAlive(string outputName, string _targetName) : base("Is Alive", outputName)
+    public IsAlive()
     {
-        targetName = _targetName;
+        Name = "IsAlive";
+        Output = new SpellComponent("", Types.YeaNay);
+        MethodComponents = new SpellComponent[] { new SpellComponent("object", Types.Object) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Obj target = (Obj)variables[targetName];
-        return new YeaNay(outputName, target.alive);
+        Obj target = (Obj)variables.Get(VarNames["object"]);
+        return new YeaNay(Output.name, target.alive);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        return $"{outputName} = {targetName}.IsAlive()";
+        return $"{Output.name} = {VarNames["object"]}.IsAlive()";
     }
 }
 
@@ -194,24 +185,27 @@ public class IsAlive : Method
 /// </summary>
 public class GetMagic : Method
 {
-    /// <summary>
-    /// The name of the object
-    /// </summary>
-    public string targetName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    public GetMagic(string outputName, string _targetName) : base("Get magic", outputName)
+    public GetMagic()
     {
-        targetName = _targetName;
+        Name = "GetMagic";
+        Output = new SpellComponent("", Types.Number);
+        MethodComponents = new SpellComponent[] { new SpellComponent("object", Types.Object) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Obj target = (Obj)variables[targetName];
-        return new Number(outputName, target.magic);
+        Obj target = (Obj)variables.Get(VarNames["object"]);
+        return new Number(Output.name, target.magic);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        return $"{outputName} = {targetName}.Magic()";
+        return $"{Output.name} = {VarNames["object"]}.Magic()";
     }
 }

@@ -10,23 +10,29 @@ using UnityEngine;
 /// </summary>
 public class GetGandalfs : Method
 {
-    private string manaName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    public GetGandalfs(string outputName, string _manaName) : base("Get Gandalfs", outputName)
+    public GetGandalfs()
     {
-        manaName = _manaName;
+        Name = "GetGandalfs";
+        Output = new SpellComponent("", Types.Number);
+        MethodComponents = new SpellComponent[] { new SpellComponent("mana", Types.Mana) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Mana m = (Mana)variables[manaName];
-        return new Number(outputName, m.gandalfs);
+        Mana m = (Mana)variables.Get(VarNames["mana"]);
+        return new Number(Output.name, m.gandalfs);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Mana m = (Mana)variables[manaName];
-        return $"{outputName} = {m.gandalfs}";
+        Mana m = (Mana)variables.Get(VarNames["mana"]);
+        return $"{Output.name} = {m.gandalfs}";
     }
 }
 
@@ -35,33 +41,36 @@ public class GetGandalfs : Method
 /// </summary>
 public class ChannelMana : Method
 {
-    private string casterName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    private string numberName;
-
-    public ChannelMana(string outputName, string _casterName, string _numberName) : base("Channel Mana", outputName)
+    public ChannelMana()
     {
-        casterName = _casterName;
-        numberName = _numberName;
+        Name = "ChannelMana";
+        Output = new SpellComponent("", Types.Mana);
+        MethodComponents = new SpellComponent[] { new SpellComponent("amount", Types.Number) };
+        InitVarNames();
     }
 
     /// <summary>
     /// Creates and returns a new Area variable
     /// </summary>
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Number amount = (Number)variables[numberName];
+        Number amount = (Number)variables.Get(VarNames["amount"]);
         if (amount.value < 0)
             throw new AberrationException(AberrationException.NEGATIVE_GANDALFS);
-        Obj caster = (Obj)variables[casterName];
+        Obj caster = (Obj)variables.Get("=player");
         float gandalfs = caster.ConsumeMana(amount.value);
-        return new Mana(outputName, gandalfs);
+        return new Mana(Output.name, gandalfs);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Number amount = (Number)variables[numberName];
-        return $"{outputName} = self.Channel({amount.GetVoice()} gandalfs)";
+        Number amount = (Number)variables.Get(VarNames["amount"]);
+        return $"{Output.name} = self.Channel({amount.GetVoice()} gandalfs)";
     }
 }
 
@@ -70,31 +79,38 @@ public class ChannelMana : Method
 /// </summary>
 public class TransferAll : Method
 {
-    private string fromMana;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    private string toMana;
-
-    public TransferAll(string _fromMana, string _toMana) : base("Transfer Mana", "")
+    public TransferAll()
     {
-        fromMana = _fromMana;
-        toMana = _toMana;
+        Name = "TransferAll";
+        Output = new SpellComponent("", Types.Null);
+        MethodComponents = new SpellComponent[] {
+            new SpellComponent("from", Types.Mana),
+            new SpellComponent("to", Types.Mana),
+            new SpellComponent("amount", Types.Number)
+        };
+        InitVarNames();
     }
 
     /// <summary>
     /// Creates and returns a new Area variable
     /// </summary>
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Mana from = (Mana)variables[fromMana];
-        Mana to = (Mana)variables[toMana];
+        Mana from = (Mana)variables.Get(VarNames["from"]);
+        Mana to = (Mana)variables.Get(VarNames["to"]);
         to.gandalfs += from.gandalfs;
         from.gandalfs = 0;
         return null;
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        return $"{fromMana}.TransferAll({toMana})";
+        return $"{VarNames["from"]}.TransferAll({VarNames["to"]})";
     }
 }
 
@@ -103,23 +119,29 @@ public class TransferAll : Method
 /// </summary>
 public class GetPointX : Method
 {
-    private string pointName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    public GetPointX(string outputName, string _pointName) : base("Get Point X", outputName)
+    public GetPointX()
     {
-        pointName = _pointName;
+        Name = "GetPointX";
+        Output = new SpellComponent("", Types.Number);
+        MethodComponents = new SpellComponent[] { new SpellComponent("p", Types.Point) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Point p = (Point)variables[pointName];
-        return new Number(outputName, p.x);
+        Point p = (Point)variables.Get(VarNames["p"]);
+        return new Number(Output.name, p.x);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Point p = (Point)variables[pointName];
-        return $"{outputName} = {p.x}";
+        Point p = (Point)variables.Get(VarNames["p"]);
+        return $"{Output.name} = {p.x}";
     }
 }
 
@@ -128,73 +150,29 @@ public class GetPointX : Method
 /// </summary>
 public class GetPointY : Method
 {
-    private string pointName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    public GetPointY(string outputName, string _pointName) : base("Get Point Y", outputName)
+    public GetPointY()
     {
-        pointName = _pointName;
+        Name = "GetPointY";
+        Output = new SpellComponent("", Types.Number);
+        MethodComponents = new SpellComponent[] { new SpellComponent("p", Types.Point) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Point p = (Point)variables[pointName];
-        return new Number(outputName, p.y);
+        Point p = (Point)variables.Get(VarNames["p"]);
+        return new Number(Output.name, p.y);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Point p = (Point)variables[pointName];
-        return $"{outputName} = {p.y}";
-    }
-}
-
-/// <summary>
-/// Returns the origin point of an area variable
-/// </summary>
-public class GetOrigin : Method
-{
-    private string areaName;
-
-    public GetOrigin(string outputName, string _areaName) : base("Get Origin", outputName)
-    {
-        areaName = _areaName;
-    }
-
-    public override Variable Cast(Dictionary<string, Variable> variables)
-    {
-        Area a = (Area)variables[areaName];
-        return new Point(outputName, a.originX, a.originY);
-    }
-
-    public override string GetVoice(Dictionary<string, Variable> variables)
-    {
-        Area a = (Area)variables[areaName];
-        return $"{outputName} = ({a.originX}, {a.originY})";
-    }
-}
-
-/// <summary>
-/// Returns the end point of an area variable
-/// </summary>
-public class GetEnd : Method
-{
-    private string areaName;
-
-    public GetEnd(string outputName, string _areaName) : base("Get End", outputName)
-    {
-        areaName = _areaName;
-    }
-
-    public override Variable Cast(Dictionary<string, Variable> variables)
-    {
-        Area a = (Area)variables[areaName];
-        return new Point(outputName, a.endX, a.endY);
-    }
-
-    public override string GetVoice(Dictionary<string, Variable> variables)
-    {
-        Area a = (Area)variables[areaName];
-        return $"{outputName} = ({a.endX}, {a.endY})";
+        Point p = (Point)variables.Get(VarNames["p"]);
+        return $"{Output.name} = {p.y}";
     }
 }
 
@@ -203,16 +181,22 @@ public class GetEnd : Method
 /// </summary>
 public class GetObjectsInside : Method
 {
-    private string areaName;
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
 
-    public GetObjectsInside(string outputName, string _areaName) : base("Get Objects Inside", outputName)
+    public GetObjectsInside()
     {
-        areaName = _areaName;
+        Name = "GetObjectsInside";
+        Output = new SpellComponent("", Types.Group);
+        MethodComponents = new SpellComponent[] { new SpellComponent("a", Types.Area) };
+        InitVarNames();
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        Area a = (Area)variables[areaName];
+        Area a = (Area)variables.Get(VarNames["a"]);
         List<Variable> returnData = new List<Variable>();
         Collider2D[] hits = Physics2D.OverlapAreaAll(new Vector2(a.originX, a.originY), new Vector2(a.endX, a.endY));
         foreach(Collider2D hit in hits)
@@ -223,67 +207,12 @@ public class GetObjectsInside : Method
                 returnData.Add(new Obj("", w));
             }
         }
-        return new Group(outputName, Types.Object, returnData);
+        return new Group(Output.name, Types.Object, returnData);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        Area a = (Area)variables[areaName];
-        return $"{outputName} = {areaName}.ObjectsInside()";
-    }
-}
-
-/// <summary>
-/// Returns the size of a group variable
-/// </summary>
-public class GetSize : Method
-{
-    private string groupName;
-
-    public GetSize(string outputName, string _groupName) : base("Get End", outputName)
-    {
-        groupName = _groupName;
-    }
-
-    public override Variable Cast(Dictionary<string, Variable> variables)
-    {
-        Group g = (Group)variables[groupName];
-        return new Number(outputName, g.size);
-    }
-
-    public override string GetVoice(Dictionary<string, Variable> variables)
-    {
-        return $"{outputName} = {groupName}.Size()";
-    }
-}
-
-/// <summary>
-/// Returns the item stored in the group at the specified index
-/// </summary>
-public class GetItem : Method
-{
-    private string groupName;
-
-    private string indexName;
-
-    public GetItem(string outputName, string _groupName, string _indexName) : base("Get Item", outputName)
-    {
-        groupName = _groupName;
-        indexName = _indexName;
-    }
-
-    public override Variable Cast(Dictionary<string, Variable> variables)
-    {
-        Group g = (Group)variables[groupName];
-        Number n = (Number)variables[indexName];
-        Variable toReturn = g.GetItem(Mathf.RoundToInt(n.value));
-        toReturn.varName = outputName;
-        return toReturn;
-    }
-
-    public override string GetVoice(Dictionary<string, Variable> variables)
-    {
-        Number n = (Number)variables[indexName];
-        return $"{outputName} = {groupName}.GetItem({Mathf.RoundToInt(n.value)})";
+        Area a = (Area)variables.Get(VarNames["a"]);
+        return $"{Output.name} = {VarNames["a"]}.ObjectsInside()";
     }
 }

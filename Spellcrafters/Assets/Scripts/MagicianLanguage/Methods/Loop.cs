@@ -7,6 +7,11 @@ using UnityEngine;
 /// </summary>
 public class Loop : Method
 {
+    public override string Name { get; set; }
+    public override SpellComponent Output { get; set; }
+    public override SpellComponent[] MethodComponents { get; set; }
+    public override Dictionary<string, string> VarNames { get; set; }
+
     /// <summary>
     /// Index of spell line that forms the start of the loop
     /// </summary>
@@ -18,29 +23,27 @@ public class Loop : Method
     /// </summary>
     private int loopCheckIndex;
 
-    /// <summary>
-    /// Name of the variable that determines if the loop continues or exits
-    /// </summary>
-    private string ynName;
-
-    public Loop(int _loopIndex, int _checkIndex, string _ynName) : base("Loop While", "")
+    public Loop(int _entry, int _check)
     {
-        entryIndex = _loopIndex;
-        loopCheckIndex = _checkIndex;
-        ynName = _ynName;
+        Name = "Loop While";
+        Output = new SpellComponent("", Types.Loop);
+        MethodComponents = new SpellComponent[] { new SpellComponent("yn", Types.YeaNay) };
+        InitVarNames();
+        entryIndex = _entry;
+        loopCheckIndex = _check;
     }
 
-    public override Variable Cast(Dictionary<string, Variable> variables)
+    public override Variable Cast(SpellStack variables)
     {
-        YeaNay yn = (YeaNay)variables[ynName];
+        YeaNay yn = (YeaNay)variables.Get(VarNames["yn"]);
         int targetIndex = (yn.value == true) ? entryIndex : loopCheckIndex;
         int shouldCheck = (yn.value == true) ? loopCheckIndex : -1;
         return new LoopControl(targetIndex, shouldCheck);
     }
 
-    public override string GetVoice(Dictionary<string, Variable> variables)
+    public override string GetVoice(SpellStack variables)
     {
-        YeaNay yn = (YeaNay)variables[ynName];
+        YeaNay yn = (YeaNay)variables.Get(VarNames["yn"]);
         return (yn.value == true) ? "Enter Loop" : "Exit Loop";
     }
 }
