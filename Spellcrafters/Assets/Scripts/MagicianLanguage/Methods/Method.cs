@@ -43,6 +43,7 @@ public abstract class Method
     /// </summary>
     protected void InitVarNames()
     {
+        VarNames = new Dictionary<string, string>();
         foreach (SpellComponent comp in MethodComponents)
         {
             VarNames[comp.name] = "";

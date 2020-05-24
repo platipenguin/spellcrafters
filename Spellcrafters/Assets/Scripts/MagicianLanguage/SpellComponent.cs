@@ -37,5 +37,6 @@ public enum Types
     Group,
     Loop,
     Conditional,
-    Null
+    Null,
+    Any
 }
